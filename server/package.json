@@ -1,0 +1,19 @@
+{
+  "name": "socketball-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint --fix --ext .js .",
+    "start": "node index.js"
+  },
+  "author": "miguelpduarte",
+  "license": "GNU GPLv3",
+  "dependencies": {
+    "socket.io": "^2.2.0"
+  },
+  "devDependencies": {
+    "eslint": "^5.12.0"
+  }
+}
