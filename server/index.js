@@ -22,7 +22,7 @@ const initSockets = () => {
 const mustHaveUniqueUsername = (socket, next) => {
     const username = socket.handshake.query.username;
 
-    if (username_map.has(username)) {
+    if (player_map.has(username)) {
         return next("Username already in use");
     } else {
         socket.username = username;
@@ -34,6 +34,9 @@ const setupEventTriggers = () => {
     io.on("connection", socket => {
         registerConnection(socket);
 
+        // TODO: Notify player of previous players as well
+
+
         setupSocketEvents(socket);
     });
 };
@@ -44,25 +47,46 @@ const setupSocketEvents = (socket) => {
     });
 
     // Updating directions
-    socket.on("move", (horizontal_dir, vertical_dir) => {
+    socket.on("move_hor", (horizontal_dir) => {
         const player = player_map.get(socket.username);
         player.setHorizontalDirection(horizontal_dir);
+    });
+    socket.on("move_vert", (vertical_dir) => {
+        const player = player_map.get(socket.username);
         player.setVerticalDirection(vertical_dir);
     });
 };
 
 const registerConnection = (socket) => {
     const player_obj = new Player(socket.username);
+    const new_player_info = player_obj.toObject();
+    
+    console.log("User", socket.username, "connected");
+    notifyOfNewPlayer(socket, new_player_info);
+    
+    notifyNewPlayerOfGameInfo(socket, new_player_info);
 
+    // Adding player to the game data structures
     socket_map.set(socket.username, socket);
     player_map.set(socket.username, player_obj);
-
-    console.log("User", socket.username, "connected");
-    notifyOfNewPlayer(socket, player_obj.toObject());
 };
 
 const notifyOfNewPlayer = (socket, new_player_info) => {
+    // Notifying other players of the new player
     socket.broadcast.emit("new_player", new_player_info);
+};
+
+const notifyNewPlayerOfGameInfo = (socket, new_player_info) => {
+    // Notifying player of his info
+    socket.emit("your_info", new_player_info);
+
+    // Notifying player of other players' info
+    let other_player_coords = [];
+    for (const player of player_map.values()) {
+        other_player_coords.push(player.toObject());
+    }
+    
+    socket.emit("others_info", other_player_coords);
 };
 
 const disconnect = (socket) => {
@@ -84,7 +108,7 @@ const updateGame = () => {
         new_coords.push(player.toObject());
     }
 
-    console.log("New player positions", new_coords);
+    // console.log("New player positions", new_coords);
 
     // Notifying all players of the new positions
     io.emit("pos_tick", new_coords);
