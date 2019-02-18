@@ -6,14 +6,16 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint --fix --ext .js .",
-    "start": "node index.js"
+    "start": "nodemon index.js"
   },
   "author": "miguelpduarte",
   "license": "GPL-3.0",
   "dependencies": {
+    "p2": "^0.7.1",
     "socket.io": "^2.2.0"
   },
   "devDependencies": {
-    "eslint": "^5.12.0"
+    "eslint": "^5.12.0",
+    "nodemon": "^1.18.9"
   }
 }

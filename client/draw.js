@@ -1,4 +1,5 @@
-import { getPlayersData } from "./state.js";
+import { getPlayerModels } from "./state.js";
+import PlayerView from "./PlayerView.js";
 
 const GAMEWIDTH = 1200;
 const GAMEHEIGHT = 740;
@@ -12,7 +13,6 @@ const ctx = canvas.getContext("2d");
 
 export const draw = () => {
     clearScreen();
-
     drawPlayers();
 
     requestAnimationFrame(draw);
@@ -23,9 +23,10 @@ const clearScreen = () => {
 };
 
 const drawPlayers = () => {
-    const players = getPlayersData();
+    const player_models = getPlayerModels();
 
-    for (const player of players) {
-        player.display(ctx);
+    for (const player of player_models) {
+        PlayerView.setData(player);
+        PlayerView.display(ctx);
     }
 };

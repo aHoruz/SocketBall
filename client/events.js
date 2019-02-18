@@ -1,28 +1,41 @@
-import { sendMoveVert, sendMoveHor } from "./communication.js";
-
-const PLAYER_DIRECTIONS = Object.freeze({
-    "positive": 1,
-    "none": 5,
-    "negative": -1,
-});
+import { PLAYER_DIRECTIONS } from "./PlayerModel.js";
+import { getOwnPlayerModel } from "./state.js";
 
 export const setupEvents = () => {
     document.addEventListener("keydown", (e) => {
+        const player = getOwnPlayerModel();
         console.log("key", e.key, "was pressed");
         switch (e.key) {
         case "w":
-            sendMoveVert(PLAYER_DIRECTIONS.negative);
+            player.setMovingVert(PLAYER_DIRECTIONS.negative);
             break;
         case "d":
-            sendMoveHor(PLAYER_DIRECTIONS.positive);
+            player.setMovingHor(PLAYER_DIRECTIONS.positive);
             break;
         case "s":
-            sendMoveVert(PLAYER_DIRECTIONS.positive);
+            player.setMovingVert(PLAYER_DIRECTIONS.positive);
             break;
         case "a":
-            sendMoveHor(PLAYER_DIRECTIONS.negative);
+            player.setMovingHor(PLAYER_DIRECTIONS.negative);
             break;
-        case " ":
+        }
+    });
+    
+    document.addEventListener("keyup", (e) => {
+        const player = getOwnPlayerModel();
+        console.log("key", e.key, "was pressed");
+        switch (e.key) {
+        case "w":
+            player.setMovingVert(PLAYER_DIRECTIONS.none);
+            break;
+        case "d":
+            player.setMovingHor(PLAYER_DIRECTIONS.none);
+            break;
+        case "s":
+            player.setMovingVert(PLAYER_DIRECTIONS.none);
+            break;
+        case "a":
+            player.setMovingHor(PLAYER_DIRECTIONS.none);
             break;
         }
     });

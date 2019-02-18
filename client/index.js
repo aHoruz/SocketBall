@@ -6,7 +6,12 @@ import { setupEvents } from "./events.js";
 const init = () => {
     // To change
     const url_username = getUrlParam("username");
-    initSockets(url_username);
+    try {
+        initSockets(url_username);
+    } catch (err) {
+        console.error("Could not connect to sockets server!", err);
+        return;
+    }
 
     // Setting up keyboard events
     setupEvents();

@@ -1,4 +1,4 @@
-import { addPlayer, updatePositions, addOwnPlayer, addOtherPlayers } from "./state.js";
+import { addPlayer, updatePositions, addOwnPlayer, addOtherPlayers, getOwnPlayerModel } from "./state.js";
 
 let socket = null;
 
@@ -7,8 +7,29 @@ export const initSockets = (username = "default_username") => {
 
     // eslint-disable-next-line no-undef
     socket = io(`http://localhost:4001?username=${username}`);
+
     socket.on("connect", () => {
         console.log("Connection successful!");
+        setupSocketEvents();
+        startMovementUpdateRequest();
+    });
+
+    socket.on("connect_failed", () => {
+        console.warn("Connection to the server failed!");
+        alert("Could not connect to the server!");
+        throw "connect_failed";
+    });
+
+    socket.on("connect_error", () => {
+        console.warn("Server probably offline!");
+        alert("Could not connect to the server!");
+        throw "connect_error";
+    });
+};
+
+const setupSocketEvents = () => {
+    socket.on("disconnect", () => {
+        console.warn("Disconnected from server!");
     });
 
     // Post connection user information
@@ -34,12 +55,23 @@ export const initSockets = (username = "default_username") => {
     });
 };
 
-export const sendMoveVert = (vertical_dir) => {
-    console.log("Sending move vert:", vertical_dir);
-    socket.emit("move_vert", vertical_dir);
+const MOVEMENT_SENDING_TICKRATE_MS = 10;
+let last_directions = null;
+
+const areDirectionsDifferent = ([old_hor, old_vert], [new_hor, new_vert]) => {
+    return old_hor !== new_hor || old_vert !== new_vert;
 };
 
-export const sendMoveHor = (horizontal_dir) => {
-    console.log("Sending move hor:", horizontal_dir);
-    socket.emit("move_hor", horizontal_dir);
+const startMovementUpdateRequest = () => {
+    setInterval(() => {
+        const directions = getOwnPlayerModel().getDirections();
+        if (!last_directions || areDirectionsDifferent(last_directions, directions)) {
+            last_directions = directions;
+            updateMoveDirections(...directions);
+        }
+    }, MOVEMENT_SENDING_TICKRATE_MS);
+};
+
+export const updateMoveDirections = (horizontal_dir, vertical_dir) => {
+    socket.emit("move", horizontal_dir, vertical_dir);
 };

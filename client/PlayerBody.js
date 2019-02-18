@@ -1,0 +1,1 @@
+export const PLAYER_RADIUS_PSX = 1;
